@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*; 
 import java.util.*;
 
-class TCPServer
+class TCPServer1
 {
 	public static HashMap<String, Socket[]> registered = new HashMap<>();
 
@@ -16,7 +16,7 @@ class TCPServer
 			DataOutputStream outStream = new DataOutputStream(forThread.getOutputStream()); 
       		BufferedReader inStream = new BufferedReader(new InputStreamReader(forThread.getInputStream()));
 
-      		SocketThread sthread = new SocketThread(outStream, inStream, forThread);
+      		SocketThread1 sthread = new SocketThread1(outStream, inStream, forThread);
       		Thread thread = new Thread(sthread);
       		thread.start();
 
@@ -24,13 +24,13 @@ class TCPServer
 	}
 }
 
-class SocketThread implements Runnable
+class SocketThread1 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 	Socket sock;
 
-	SocketThread(DataOutputStream outStream, BufferedReader inStream, Socket s)
+	SocketThread1(DataOutputStream outStream, BufferedReader inStream, Socket s)
 	{
 		this.out = outStream;
 		this.in = inStream;
@@ -61,36 +61,41 @@ class SocketThread implements Runnable
 					{
 						if (regSplit[2].matches("[a-zA-Z0-9]+"))
 						{
-							if (TCPServer.registered.containsKey(regSplit[2]))
+							if (TCPServer1.registered.containsKey(regSplit[2]))
 							{
 								out.writeBytes("ERROR 100 Malformed username\n\n");
+								System.out.println("ERROR 100 Malformed username\n\n");
 								out.close();
 								in.close();
 								throw new Exception("Socket is closed");
 							}
 							else
 							{
-								TCPServer.registered.put(regSplit[2], new Socket[]{sock, null});
-								out.writeBytes("REGISTERED TORECV " + regSplit[2] + "\n\n");	
+								TCPServer1.registered.put(regSplit[2], new Socket[]{sock, null});
+								out.writeBytes("REGISTERED TORECV " + regSplit[2] + "\n\n");
+								System.out.println("REGISTERED TORECV " + regSplit[2] + "\n\n");	
 							}
 						}
 						else
 						{
 							out.writeBytes("ERROR 100 Malformed username\n\n");
+							System.out.println("ERROR 100 Malformed username\n\n");
 						}
 					}
 					else if (regSplit[1].equals("TOSEND"))
 					{
 						if (regSplit[2].matches("[a-zA-Z0-9]+"))
 						{
-								Socket sent = TCPServer.registered.get(regSplit[2])[0];
-								TCPServer.registered.put(regSplit[2], new Socket[]{sent,sock});
+								Socket sent = TCPServer1.registered.get(regSplit[2])[0];
+								TCPServer1.registered.put(regSplit[2], new Socket[]{sent,sock});
 
 								out.writeBytes("REGISTERED TOSEND " + regSplit[2] + "\n\n");
+								System.out.println("REGISTERED TOSEND " + regSplit[2] + "\n\n");
 
 								while (true)
 								{
 									String message = in.readLine();
+									//System.out.println("1234");
 
 									System.out.println(message);
 
@@ -98,7 +103,7 @@ class SocketThread implements Runnable
 									if (sent1[0].equals("SEND"))
 									{
 										String recipient = sent1[1];
-										if (TCPServer.registered.containsKey(recipient))
+										if (TCPServer1.registered.containsKey(recipient))
 										{
 											message = in.readLine();
 											sent1 = message.split(" ");
@@ -111,11 +116,12 @@ class SocketThread implements Runnable
 													message = in.readLine();
 													message = message.substring(0,size);
 
-													Socket sendAck = TCPServer.registered.get(recipient)[0];
+													Socket sendAck = TCPServer1.registered.get(recipient)[0];
 													DataOutputStream toRecipient = new DataOutputStream(sendAck.getOutputStream());
 													BufferedReader fromRecipient = new BufferedReader(new InputStreamReader(sendAck.getInputStream()));
 
 													toRecipient.writeBytes("FORWARD " + regSplit[2] + "\nContent-length: " + size + "\n\n" + message + "\n");
+													System.out.println("FORWARD " + regSplit[2] + "\nContent-length: " + size + "\n\n" + message + "\n");
 
 													String recAck1 = fromRecipient.readLine();
 													String recAck2 = fromRecipient.readLine();
@@ -124,6 +130,7 @@ class SocketThread implements Runnable
 														if (recAck1.equals("RECEIVED " + regSplit[2]))
 														{
 															out.writeBytes("SENT " + recipient + "\n\n");
+															System.out.println("SENT " + recipient + "\n\n");
 														}
 														else if (recAck1.equals("ERROR 103 Header Incomplete"))
 														{
@@ -157,9 +164,10 @@ class SocketThread implements Runnable
 										if (message.equals(""))
 										{
 											String unregUser = sent1[1];
-											Socket[] removed = TCPServer.registered.remove(unregUser);
+											Socket[] removed = TCPServer1.registered.remove(unregUser);
 
 											out.writeBytes("UNREGISTERED " + sent1[1] + "\n\n");
+											System.out.println("UNREGISTERED " + sent1[1] + "\n\n");
 											out.close();
 											in.close();
 											removed[0].close();

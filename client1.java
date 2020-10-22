@@ -1,6 +1,6 @@
 import java.io.*; 
 import java.net.*; 
-class TCPClient
+class TCPClient1
 {
 	public static int Register(DataOutputStream out, BufferedReader in, String username, int mode, Socket s) throws Exception
 	{
@@ -71,11 +71,11 @@ class TCPClient
 			{
 				System.out.println("Registered");
 				BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-				SendMessage sent = new SendMessage(outSendStream, inSendStream, toSend, argv[0]);
+				SendMessage1 sent = new SendMessage1(outSendStream, inSendStream, toSend, argv[0]);
 				Thread sentThread = new Thread(sent);
 				sentThread.start();
 
-				RecvMessage recv = new RecvMessage(outRecvStream, inRecvStream);
+				RecvMessage1 recv = new RecvMessage1(outRecvStream, inRecvStream);
 				Thread recvThread = new Thread(recv);
 				recvThread.start();
 			}
@@ -96,14 +96,14 @@ class TCPClient
 
 }
 
-class SendMessage implements Runnable
+class SendMessage1 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 	Socket socket;
 	String username;
 
-	SendMessage(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname)
+	SendMessage1(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname)
 	{
 		this.out = outSend;
 		this.in = inSend;
@@ -148,6 +148,7 @@ class SendMessage implements Runnable
 				}
 
 				out.writeBytes("SEND " + recipient + "\nContent-length: " + message[1].length() + "\n\n" + message[1] + "\n");
+				//System.out.println("123");
 				String recv1 = in.readLine();
 				String recv2 = in.readLine();
 
@@ -186,12 +187,12 @@ class SendMessage implements Runnable
 	}
 }
 
-class RecvMessage implements Runnable
+class RecvMessage1 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 
-	RecvMessage(DataOutputStream outStream, BufferedReader inStream)
+	RecvMessage1(DataOutputStream outStream, BufferedReader inStream)
 	{
 		this.out = outStream;
 		this.in = inStream;

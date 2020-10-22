@@ -13,7 +13,7 @@ import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.Cipher;
 
 
-class TCPClient
+class TCPClient2
 {
 	public static int Register(DataOutputStream out, BufferedReader in, String username, int mode, Socket s, String publicKey) throws Exception
 	{
@@ -87,11 +87,11 @@ class TCPClient
 			{
 				System.out.println("Registered");
 				BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-				SendMessage sent = new SendMessage(outSendStream, inSendStream, toSend, argv[0]);
+				SendMessage2 sent = new SendMessage2(outSendStream, inSendStream, toSend, argv[0]);
 				Thread sentThread = new Thread(sent);
 				sentThread.start();
 
-				RecvMessage recv = new RecvMessage(outRecvStream, inRecvStream, privateKeySender);
+				RecvMessage2 recv = new RecvMessage2(outRecvStream, inRecvStream, privateKeySender);
 				Thread recvThread = new Thread(recv);
 				recvThread.start();
 			}
@@ -112,14 +112,14 @@ class TCPClient
 
 }
 
-class SendMessage implements Runnable
+class SendMessage2 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 	Socket socket;
 	String username;
 
-	SendMessage(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname)
+	SendMessage2(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname)
 	{
 		this.out = outSend;
 		this.in = inSend;
@@ -218,13 +218,13 @@ class SendMessage implements Runnable
 	}
 }
 
-class RecvMessage implements Runnable
+class RecvMessage2 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 	byte[] privateKey;
 
-	RecvMessage(DataOutputStream outStream, BufferedReader inStream, byte[] private_key)
+	RecvMessage2(DataOutputStream outStream, BufferedReader inStream, byte[] private_key)
 	{
 		this.out = outStream;
 		this.in = inStream;

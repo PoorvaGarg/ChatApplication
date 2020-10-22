@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 
 
-class TCPClient
+class TCPClient3
 {
 	public static int Register(DataOutputStream out, BufferedReader in, String username, int mode, Socket s, String publicKey) throws Exception
 	{
@@ -37,6 +37,7 @@ class TCPClient
 		out.writeBytes("REGISTER TO" + phrase + username + " " + publicKey + "\n\n");
 		System.out.println("REGISTER TO" + phrase + username + "\n\n");
 		String recv1 = in.readLine();
+		System.out.println(recv1);
 		String recv2 = in.readLine();
 
 		//System.out.print("*" + recv2 + "&");
@@ -92,11 +93,11 @@ class TCPClient
 			{
 				System.out.println("Registered");
 				BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-				SendMessage sent = new SendMessage(outSendStream, inSendStream, toSend, argv[0], privateKeySender);
+				SendMessage3 sent = new SendMessage3(outSendStream, inSendStream, toSend, argv[0], privateKeySender);
 				Thread sentThread = new Thread(sent);
 				sentThread.start();
 
-				RecvMessage recv = new RecvMessage(outRecvStream, inRecvStream, privateKeySender);
+				RecvMessage3 recv = new RecvMessage3(outRecvStream, inRecvStream, privateKeySender);
 				Thread recvThread = new Thread(recv);
 				recvThread.start();
 			}
@@ -112,7 +113,7 @@ class TCPClient
 	}
 }
 
-class SendMessage implements Runnable
+class SendMessage3 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
@@ -120,7 +121,7 @@ class SendMessage implements Runnable
 	String username;
 	byte[] privateKey;
 
-	SendMessage(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname, byte[] private_key)
+	SendMessage3(DataOutputStream outSend, BufferedReader inSend, Socket socket, String uname, byte[] private_key)
 	{
 		this.out = outSend;
 		this.in = inSend;
@@ -167,6 +168,7 @@ class SendMessage implements Runnable
 				}
 
 				out.writeBytes("FETCHKEY " + recipient + "\n\n");
+				System.out.println("FETCHKEY " + recipient + "\n\n");
 				String getKey = in.readLine();
 				String getKeyEnd = in.readLine();
 				String[] getKeySplit = getKey.split(" ");
@@ -184,6 +186,9 @@ class SendMessage implements Runnable
 						String sentHash = java.util.Base64.getEncoder().encodeToString(sentHashedMessage);
 
 						out.writeBytes("SEND " + recipient + "\nContent-length: " + sentMessage.length() + "\nMessage-Signature: " + sentHash
+												 + "\n\n" + sentMessage + "\n");
+						System.out.println(getKey);
+						System.out.println("SEND " + recipient + "\nContent-length: " + sentMessage.length() + "\nMessage-Signature: " + sentHash
 												 + "\n\n" + sentMessage + "\n");
 						String recv1 = in.readLine();
 						String recv2 = in.readLine();
@@ -225,13 +230,13 @@ class SendMessage implements Runnable
 	}
 }
 
-class RecvMessage implements Runnable
+class RecvMessage3 implements Runnable
 {
 	DataOutputStream out;
 	BufferedReader in;
 	byte[] privateKey;
 
-	RecvMessage(DataOutputStream outStream, BufferedReader inStream, byte[] private_key)
+	RecvMessage3(DataOutputStream outStream, BufferedReader inStream, byte[] private_key)
 	{
 		this.out = outStream;
 		this.in = inStream;
@@ -273,6 +278,7 @@ class RecvMessage implements Runnable
 								
 
 								this.out.writeBytes("FETCHKEY " + username + "\n\n");
+								System.out.println("FETCHKEY " + username + "\n\n");
 
 								String getKey = in.readLine();
 								String getKeyEnd = in.readLine();
@@ -293,7 +299,10 @@ class RecvMessage implements Runnable
 										if(s1.equals(s2))
 										{
 								            out.writeBytes("RECEIVED " + username + "\n\n");
-								            System.out.println(username + " " + receivedMessage);
+								            System.out.println("After Decryption, Received from " + username + " " + receivedMessage);
+								            System.out.println("Public Key of Sender: " + getKey);
+								            System.out.println("Hashed Message Sent: " + sentHash);
+
 								        }
 								        else
 								        {
